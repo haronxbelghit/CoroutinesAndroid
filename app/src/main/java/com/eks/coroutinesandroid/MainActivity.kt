@@ -2,16 +2,18 @@ package com.eks.coroutinesandroid
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity() {
+
+    val TAG = "MainActivity"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val TAG = "MainActivity"
+        val textView: TextView = findViewById(R.id.DummyText) as TextView
 
         /*  ***Part 1***
 
@@ -47,5 +49,29 @@ class MainActivity : AppCompatActivity() {
     }
     */
 
+        /* ***Part 3***
+        //Dispatchers.main : Useful for Ui related stuff and cuz UI can only be changed from the main thread
+        //Dispatchers.IO   : Useful for data related stuff: network ops, database ops, r/w on files
+        //Dispatchers.Default   : Useful for complex and long calculations
+        //Or we can start a new thread using newSingleThreadContext("Name")
+        //Useful thing is that the context can be switched from inside the coroutine
+        // For example, we shouldn't make Network requests from the main thread but we can't update the ui from outside the main thread, switching context is the solution
+
+        GlobalScope.launch(Dispatchers.IO) {
+            Log.d(TAG, "Starting in thread ${Thread.currentThread().name}")
+            val fakeNetworkCallAnswer = fakeNetworkCall()
+            //after getting the "network" answer we can switch context
+            withContext(Dispatchers.Main){
+                Log.d(TAG, "Ui update thread ${Thread.currentThread().name}")
+                textView.text = fakeNetworkCallAnswer
+            }
+        }
+        */
+
+    }
+
+    suspend fun fakeNetworkCall(): String {
+        delay(3000L)
+        return "Network call done"
     }
 }
