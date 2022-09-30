@@ -13,7 +13,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val textView: TextView = findViewById(R.id.DummyText) as TextView
+        val textView: TextView = findViewById(R.id.DummyText)
 
         /*  ***Part 1***
 
@@ -68,6 +68,35 @@ class MainActivity : AppCompatActivity() {
         }
         */
 
+        /* ***Part 4***
+        // blocks the thread, using delay blocks the thread here
+        // useful in testing with JUnit for accessing suspend functions
+        Log.d(TAG,"Before runBlocking")
+        runBlocking {
+            Log.d(TAG,"While runBlocking")
+            delay(1000L)
+            Log.d(TAG,"End runBlocking")
+        }
+        Log.d(TAG,"After runBlocking")
+        */
+
+        /* ***Part 5***
+        val job:Job = GlobalScope.launch(Dispatchers.Default) {
+            repeat(6){
+                Log.d(TAG, "Coroutine is working...")
+                delay(100L)
+            }
+        }
+        runBlocking {
+            job.join() // blocks thread until coroutine is finished
+            job.cancel()
+            // cancels the job, can add cancellation exception,
+            // sometimes coroutines are too busy with calcs that they don't check for cancellation, can use "if(isActive) to check manually
+            // better to use withTimeout(){} to cancel properly
+            Log.d(TAG, "Main thread is continuing...")
+        }
+
+         */
     }
 
     suspend fun fakeNetworkCall(): String {
