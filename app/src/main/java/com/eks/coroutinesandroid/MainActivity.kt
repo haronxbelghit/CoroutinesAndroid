@@ -1,10 +1,15 @@
 package com.eks.coroutinesandroid
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.coroutines.*
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -14,6 +19,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val textView: TextView = findViewById(R.id.DummyText)
+        val button: Button = findViewById(R.id.btnStartActivity)
 
         /*  ***Part 1***
 
@@ -97,10 +103,59 @@ class MainActivity : AppCompatActivity() {
         }
 
          */
-    }
 
-    suspend fun fakeNetworkCall(): String {
-        delay(3000L)
-        return "Network call done"
+        /* ***Part 6***
+        // TOO SLOW
+        //        GlobalScope.launch(Dispatchers.IO) {
+        //            val time = measureTimeMillis {
+        //                val req1 = fakeNetworkCall1()
+        //                val req2 = fakeNetworkCall2()
+        //                Log.d(TAG,"Answer 1 is $req1")
+        //                Log.d(TAG,"Answer 2 is $req2")
+        //            }
+        //            Log.d(TAG,"Req took $time")
+        //        }
+        GlobalScope.launch(Dispatchers.IO) {
+            val time = measureTimeMillis {
+                val answer2 = async { fakeNetworkCall1() }
+                val answer1 = async { fakeNetworkCall2() }
+                Log.d(TAG, "Answer 1 is ${answer1.await()}") // waits for the deferred to arrive
+                Log.d(TAG, "Answer 2 is ${answer2.await()}")
+            }
+            Log.d(TAG, "Req took $time ms")
+        }*/
+
+        /* ***Part 7***
+        // lifeCycleScope and viewModelScope are the ones used most instead of GlobalScope
+
+        // What happens here is that using GlobalScope the main activity is destroyed but the coroutine is still running the loop
+        // To slove this we use lifecycleScope (linked to activities) / viewModel (linked to viewModel)
+        button.setOnClickListener {
+            lifecycleScope.launch {
+                while (true) {
+                    delay(1000L)
+                    Log.d(TAG, "running loop")
+                }
+            }
+            GlobalScope.launch {
+                delay(3000L)
+                Intent(this@MainActivity, SecondActivity::class.java).also {
+                    startActivity(it)
+                    finish()
+                    Log.d(TAG, "start activity")
+                }
+            }
+        }*/
+
     }
+}
+
+suspend fun fakeNetworkCall1(): String {
+    delay(3000L)
+    return "Network call 1 done"
+}
+
+suspend fun fakeNetworkCall2(): String {
+    delay(3000L)
+    return "Network call 2 done"
 }
